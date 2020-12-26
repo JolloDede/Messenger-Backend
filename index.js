@@ -93,7 +93,7 @@ app.post('/messages', (req, res, next) =>{
 })
 
 app.use((error, req, res, next) => {
-    res.status(500);
+    res.status(res.statusCode || 500);
     res.json({
       message: error.message
     });
