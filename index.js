@@ -6,12 +6,15 @@ const volleyball = require('volleyball');
 const app = express();
 const db = require('./db/connection');
 const messages = db.get('messages');
+const users = db.get('users');
 
 const auth = require('./auth');
+const middlewares = require('./auth/middlewares');
 
 app.use(cors());
 app.use(express.json());
 app.use(volleyball);
+app.use(middlewares.checkTokenSetUser);
 
 app.use('/auth', auth);
 
@@ -20,6 +23,9 @@ app.get('/', (req, res) => {
         message: 'Hallo'
     });
 });
+
+// Everything that comes after here is only accessable with a account
+app.use(middlewares.isLoggedIn);
 
 app.get('/messages', (req, res, next) => {
     messages
@@ -39,15 +45,15 @@ app.get('/v2/messages', (req, res, next) => {
     Promise.all([
         messages.count(),
         messages
-        .find({}, {
-            skip,
-            limit,
-            orderBy: {
-                created: -1
-            }
-        })
+            .find({}, {
+                skip,
+                limit,
+                orderBy: {
+                    created: -1
+                }
+            })
     ])
-        .then(([ count, messages ]) => {
+        .then(([count, messages]) => {
             res.json({
                 messages,
                 meta: {
@@ -71,8 +77,8 @@ app.use(rateLimit({
     max: 100 // limit each IP to 100 requests per windowMs
 }));
 
-app.post('/messages', (req, res, next) =>{
-    if (isValidMessage(req.body)){
+app.post('/messages', (req, res, next) => {
+    if (isValidMessage(req.body)) {
         const messageRec = {
             name: req.body.name.toString(),
             message: req.body.message.toString(),
@@ -83,8 +89,8 @@ app.post('/messages', (req, res, next) =>{
             .insert(messageRec)
             .then(createdMessage => {
                 res.json(createdMessage);
-        }).catch(next);
-    }else {
+            }).catch(next);
+    } else {
         res.status(422);
         res.json({
             message: 'Hey, name and Message are required'
@@ -95,7 +101,7 @@ app.post('/messages', (req, res, next) =>{
 app.use((error, req, res, next) => {
     res.status(res.statusCode || 500);
     res.json({
-      message: error.message
+        message: error.message
     });
 });
 
