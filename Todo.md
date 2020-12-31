@@ -13,3 +13,5 @@
     * [X] responde with a error
   * [X] remove the auth from /messages
 
+### Step 
+* [X] Respond with User after Login
