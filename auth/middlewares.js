@@ -10,7 +10,7 @@ function checkTokenSetUser(req, res, next) {
       jwt.verify(token, process.env.TOKEN_SECRET, (error, decoded) => {
         if (error) {
           next();
-        }
+        } 
         users.findOne({
           username: decoded.username,
         }).then(user => {

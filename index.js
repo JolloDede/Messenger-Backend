@@ -68,8 +68,7 @@ app.get('/v2/messages', (req, res, next) => {
 
 
 function isValidMessage(messageOb) {
-    return messageOb.name && messageOb.name.toString().trim() !== '' &&
-        messageOb.message && messageOb.message.toString().trim() !== '';
+    return messageOb.message && messageOb.message.toString().trim() !== '';
 }
 
 app.use(rateLimit({
@@ -80,7 +79,7 @@ app.use(rateLimit({
 app.post('/messages', (req, res, next) => {
     if (isValidMessage(req.body)) {
         const messageRec = {
-            name: req.body.name.toString(),
+            name: req.user.toString(),
             message: req.body.message.toString(),
             created: new Date()
         };

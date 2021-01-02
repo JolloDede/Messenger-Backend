@@ -13,3 +13,5 @@
     * [X] responde with a error
   * [X] remove the auth from /messages
 
+### Step 2
+* [X] Server validate the new messages
