@@ -6,14 +6,13 @@ const volleyball = require('volleyball');
 const app = express();
 const db = require('./db/connection');
 const messages = db.get('messages');
-const users = db.get('users');
 
 const auth = require('./auth');
 const middlewares = require('./auth/middlewares');
 
 app.use(cors());
-app.use(express.json());
 app.use(volleyball);
+app.use(express.json());
 app.use(middlewares.checkTokenSetUser);
 
 app.use('/auth', auth);
@@ -33,7 +32,7 @@ app.get('/messages', (req, res, next) => {
         .then(messages => {
             res.json(messages);
         }).catch(next);
-})
+});
 
 app.get('/v2/messages', (req, res, next) => {
     // let skip = Number(req.query.skip) || 0;
@@ -64,22 +63,24 @@ app.get('/v2/messages', (req, res, next) => {
                 }
             });
         }).catch(next);
-})
+});
 
 
 function isValidMessage(messageOb) {
     return messageOb.message && messageOb.message.toString().trim() !== '';
 }
 
-app.use(rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP to 100 requests per windowMs
-}));
+// Todo
+// app.use(rateLimit({
+//     windowMs: 15 * 60 * 1000, // 15 minutes
+//     max: 100 // limit each IP to 100 requests per windowMs
+// }));
 
 app.post('/messages', (req, res, next) => {
+    console.log(req.body);
     if (isValidMessage(req.body)) {
         const messageRec = {
-            name: req.user.toString(),
+            name: req.user.username.toString(),
             message: req.body.message.toString(),
             created: new Date()
         };
