@@ -62,7 +62,7 @@ Give an example
 
 ## Deployment
 
-If you whant to deploy that at your home your system needs [Node.js](https://nodejs.org/en/) and [MongoDB](https://www.mongodb.com/de) installed and running.
+If you whant to deploy that at your home your system needs [Node.js](https://nodejs.org/en/) and [MongoDB](https://www.mongodb.com/de) installed and running. If you rly whant to Deploy it then should propably uncomment the Code under the "Todo Uncomment".
 
 ## Built With
 
