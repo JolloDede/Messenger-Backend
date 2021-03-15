@@ -3,7 +3,7 @@
   * [X] respond if not authorized
   * [X] check if token belogns to a user
 
-* [ ] make middlewares for authetication
+* [X] make middlewares for authetication
   * [X] check token set user
     * [X] Verify Token
     * [X] Check if user exists
@@ -15,3 +15,12 @@
 
 ### Step
 * [X] Server validate the new messages
+
+### Step
+* [X] multer
+  * [X] install multer
+  * [X] change that it works again
+  * [X] add the functionality to upload images
+  * [X] save the image to /uploads
+  * [X] merge then post upload and the post messages
+  
