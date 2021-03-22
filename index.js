@@ -46,15 +46,8 @@ app.get('/', (req, res) => {
 // Everything that comes after here is only accessable with a account
 app.use(middlewares.isLoggedIn);
 
+// Version 2
 app.get('/messages', (req, res, next) => {
-    messages
-        .find()
-        .then(messages => {
-            res.json(messages);
-        }).catch(next);
-});
-
-app.get('/v2/messages', (req, res, next) => {
     let { skip = 0, limit = 10 } = req.query;
     skip = Number(skip);
     limit = Number(limit);
