@@ -54,36 +54,6 @@ app.get('/messages', (req, res, next) => {
         }).catch(next);
 });
 
-app.get('/v2/messages', (req, res, next) => {
-    let { skip = 0, limit = 10 } = req.query;
-    skip = Number(skip);
-    limit = Number(limit);
-
-    Promise.all([
-        messages.count(),
-        messages
-            .find({}, {
-                skip,
-                limit,
-                orderBy: {
-                    created: -1
-                }
-            })
-    ])
-        .then(([total, messages]) => {
-            res.json({
-                messages,
-                meta: {
-                    total,
-                    skip,
-                    limit,
-                    has_more: total - (skip + limit) > 0,
-                }
-            });
-        }).catch(next);
-});
-
-
 function isValidMessage(messageOb) {
     if (messageOb.message && messageOb.message.toString().trim() !== '') {
         return true;
