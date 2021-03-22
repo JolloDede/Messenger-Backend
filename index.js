@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
 
     // By default, multer removes file extensions so let's add them back
     filename: function(req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+        cb(null, Date.now() + path.extname(file.originalname));
     }
 });
 const fileFilter = (req, file, cb) => {
@@ -55,8 +55,6 @@ app.get('/messages', (req, res, next) => {
 });
 
 app.get('/v2/messages', (req, res, next) => {
-    // let skip = Number(req.query.skip) || 0;
-    // let limit = Number(req.query.limit) || 10;
     let { skip = 0, limit = 10 } = req.query;
     skip = Number(skip);
     limit = Number(limit);
@@ -72,11 +70,11 @@ app.get('/v2/messages', (req, res, next) => {
                 }
             })
     ])
-        .then(([count, messages]) => {
+        .then(([total, messages]) => {
             res.json({
                 messages,
                 meta: {
-                    count,
+                    total,
                     skip,
                     limit,
                     has_more: total - (skip + limit) > 0,
