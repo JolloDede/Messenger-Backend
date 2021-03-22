@@ -7,17 +7,17 @@ function checkTokenSetUser(req, res, next) {
   if (authHeader) {
     const token = authHeader.split(' ')[1];
     if (token) {
-      jwt.verify(token, process.env.TOKEN_SECRET, (error, decoded) => {
-        if (error) {
-          next();
-        } 
+      try {
+        let decoded = jwt.verify(token, process.env.TOKEN_SECRET);
         users.findOne({
-          username: decoded.username,
-        }).then(user => {
-            req.user = user;
-            next();
-        });
-      })
+              username: decoded.username,
+            }).then(user => {
+                req.user = user;
+                next();
+            });
+      } catch (error) {
+        next();
+      }
     } else {
       next();
     }
