@@ -46,6 +46,12 @@ app.get('/', (req, res) => {
 // Everything that comes after here is only accessable with a account
 app.use(middlewares.isLoggedIn);
 
+app.get('/authorized', (req, res) => {
+    res.json({
+        message: 'authorized'
+    })
+});
+
 app.get('/messages', (req, res, next) => {
     messages
         .find()
