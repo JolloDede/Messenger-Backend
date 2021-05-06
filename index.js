@@ -2,22 +2,30 @@ const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const volleyball = require('volleyball');
-const multer  = require('multer');
+const multer = require('multer');
 const path = require("path");
+const http = require("http");
 
 const app = express();
+const server = http.createServer(app);
+const io = require('socket.io')(server, {
+    cors: {
+        // origin: "http://localhost:3000",
+        methods: ["GET", "POST"]
+      }
+});
 const db = require('./db/connection');
 const messages = db.get('messages');
 
 const auth = require('./auth');
 const middlewares = require('./auth/middlewares');
 const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
+    destination: function (req, file, cb) {
         cb(null, 'uploads/');
     },
 
     // By default, multer removes file extensions so let's add them back
-    filename: function(req, file, cb) {
+    filename: function (req, file, cb) {
         cb(null, Date.now() + path.extname(file.originalname));
     }
 });
@@ -45,12 +53,6 @@ app.get('/', (req, res) => {
 
 // Everything that comes after here is only accessable with a account
 app.use(middlewares.isLoggedIn);
-
-app.get('/authorized', (req, res) => {
-    res.json({
-        message: 'authorized'
-    })
-});
 
 app.get('/messages', (req, res, next) => {
     messages
@@ -93,9 +95,9 @@ app.get('/v2/messages', (req, res, next) => {
 function isValidMessage(messageOb) {
     if (messageOb.message && messageOb.message.toString().trim() !== '') {
         return true;
-    }else if(messageOb.img) {
+    } else if (messageOb.img) {
         return true;
-    }else {
+    } else {
         return false;
     }
 }
@@ -108,11 +110,11 @@ function isValidMessage(messageOb) {
 
 app.post('/messages', upload.single('file-input'), (req, res, next) => {
     const msg = { message: req.body.message, img: req.file };
-    if (isValidMessage(msg)){
+    if (isValidMessage(msg)) {
         const rec = {
             name: req.user.username.toString(),
-            message: msg.message ? msg.message.toString(): "",
-            img: msg.img ? msg.img.filename.toString(): "",
+            message: msg.message ? msg.message.toString() : "",
+            img: msg.img ? msg.img.filename.toString() : "",
             created: new Date()
         }
         messages
@@ -120,7 +122,7 @@ app.post('/messages', upload.single('file-input'), (req, res, next) => {
             .then(createdMessage => {
                 res.json(createdMessage);
             }).catch(next);
-    }else {
+    } else {
         res.status(422);
         res.json({
             message: 'Hey, a Message or a Image are required'
@@ -135,6 +137,33 @@ app.use((error, req, res, next) => {
     });
 });
 
-app.listen(5000, () => {
+// Socketio area
+let numClients = 0;
+
+io.on('connection', socket => {
+    socket.emit('announcements', { message: 'A new user has joined!' });
+});
+
+io.on('connection', socket => {
+    numClients++;
+    socket.emit('stats', { numClients: numClients });
+
+    console.log('Connected clients:', numClients);
+
+    socket.on('disconnect', function() {
+        numClients--;
+        socket.emit('stats', { numClients: numClients });
+
+        console.log('Connected clients:', numClients);
+    });
+});
+
+io.on("connection", socket => {
+    socket.on("message", data => {
+        io.emit("message", { message: data });
+    });
+});
+
+server.listen(5000, () => {
     console.log('App Listen');
 });
