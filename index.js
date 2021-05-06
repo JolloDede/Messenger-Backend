@@ -10,7 +10,7 @@ const app = express();
 const server = http.createServer(app);
 const io = require('socket.io')(server, {
     cors: {
-        // origin: "http://localhost:3000",
+        origins: ["http://10.1.10.102:3000", "http://localhost:3000"],
         methods: ["GET", "POST"]
       }
 });
@@ -38,8 +38,8 @@ const fileFilter = (req, file, cb) => {
 }
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
-app.use(cors());
 app.use(volleyball);
+app.use(cors());
 app.use(express.json());
 app.use(middlewares.checkTokenSetUser);
 
