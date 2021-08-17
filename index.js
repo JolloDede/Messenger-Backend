@@ -12,7 +12,7 @@ const io = require('socket.io')(server, {
     cors: {
         origins: ["http://10.1.10.102:3000", "http://localhost:3000"],
         methods: ["GET", "POST"]
-      }
+    }
 });
 const db = require('./db/connection');
 const messages = db.get('messages');
@@ -39,8 +39,13 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 app.use(volleyball);
-app.use(cors());
+app.use(cors(
+    {
+        origins: ["http://10.1.10.102:3000", "http://localhost:3000"],
+    }
+));
 app.use(express.json());
+
 app.use(middlewares.checkTokenSetUser);
 
 app.use('/auth', auth);
@@ -138,30 +143,21 @@ app.use((error, req, res, next) => {
 });
 
 // Socketio area
-let numClients = 0;
-
-io.on('connection', socket => {
-    socket.emit('announcements', { message: 'A new user has joined!' });
-});
-
-io.on('connection', socket => {
-    numClients++;
-    socket.emit('stats', { numClients: numClients });
-
-    console.log('Connected clients:', numClients);
-
-    socket.on('disconnect', function() {
-        numClients--;
-        socket.emit('stats', { numClients: numClients });
-
-        console.log('Connected clients:', numClients);
-    });
-});
 
 io.on("connection", socket => {
-    socket.on("message", data => {
-        io.emit("message", { message: data });
-    });
+    const id = socket.handshake.query.id;
+    socket.join(id);
+
+    socket.on("send-message", ({ recipients, text }) => {
+        recipients.forEach(recipient => {
+            const newRecipients = recipients.filter(r => r !== recipient);
+            newRecipients.push(id);
+
+            socket.broadcast.to(recipient).emit("recieve-message", {
+                recipients: newRecipients, sender: id, text
+            })
+        });
+    })
 });
 
 server.listen(5000, () => {

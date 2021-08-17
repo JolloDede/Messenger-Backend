@@ -36,7 +36,8 @@ function createTokenSendResponse(user, res, next) {
     } else {
       res.json({ 
         token: token,
-        username: user.username
+        // username: user.username,
+        id: user._id
       });
     }
   });
