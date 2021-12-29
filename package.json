@@ -21,6 +21,7 @@
     "monk": "^7.3.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
+    "socket.io": "^4.4.0",
     "volleyball": "^1.5.1"
   },
   "devDependencies": {

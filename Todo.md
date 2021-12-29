@@ -24,3 +24,5 @@
   * [X] save the image to /uploads
   * [X] merge then post upload and the post messages
   
+### Step
+* [X] socketio implementation
