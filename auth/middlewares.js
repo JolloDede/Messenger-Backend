@@ -3,7 +3,6 @@ const db = require('../db/connection');
 const users = db.get('users');
 
 function checkTokenSetUser(req, res, next) {
-  console.log("Hallo");
   const authHeader = req.headers['authorization'];
   if (authHeader) {
     const token = authHeader.split(' ')[1];
